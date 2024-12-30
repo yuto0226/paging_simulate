@@ -27,6 +27,11 @@ $(TARGET): $(OBJS)
 clean:
 	rm -f $(TARGET) $(OBJS) *~
 
+# 清理編譯產生的檔案 (Windows 版)
+.PHONY: wclean
+wclean:
+	del /f $(TARGET) $(OBJS) *~
+
 # 執行程式
 .PHONY: run
 run: $(TARGET)
