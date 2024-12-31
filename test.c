@@ -5,6 +5,8 @@
 #include "riscv.h"
 #include "debug.h"
 #include "memorylayout.h"
+#include "types.h"
+#include "swap.h"
 
 #define passed(fmt, ...) printf(\
     COLOR_GREEN "[+] " COLOR_RESET fmt COLOR_BOLD_GREEN " passed\n" COLOR_RESET,\
@@ -51,26 +53,50 @@ void va_test() {
 }
 
 void page_test() {
+    uint64 *data = kalloc();
+    uint64 offset = (uint64)data & 0x0fff;
+    info("data=0x%lx, offset=0x%lx\n", (uint64)data, offset);
+
     pagetable_t pagetable = uvmcreate();
     if (pagetable == 0) {
         failed("uvmcreate()");
         return;
     }
 
-    uint64 va = PGSIZE;
-    uint64 pa = (uint64)kalloc();
-    if (pa == 0) {
-        failed("kalloc()");
+    uint64 va = 0x1000;
+
+    pte_t *pte = walk(pagetable, va, 1);
+    if (pte == 0) {
+        failed("walk()");
         return;
     }
 
-    if (mappages(pagetable, va, PGSIZE, pa, PTE_W) != 0) {
-        failed("mappages()");
+    *pte = PA2PTE((uint64)data) | PTE_V | PTE_U | PTE_R | PTE_W;
+    pte_info(pte);
+
+    uint64 addr = walkaddr(pagetable, va);
+    info("addr=0x%lx\n", addr);
+
+    if(PTE2PA(*pte) != addr) {
+        failed("walkaddr()");
         return;
     }
 
-    passed("mappages()");
+    page_out(pagetable, va);
+    if ((*pte & PTE_V) != 0) {
+        failed("page_out()");
+        return;
+    }
 
-    uvmunmap(pagetable, va, 1, 1);
-    passed("uvmunmap()");
+    pte_info(pte);
+
+    page_in(pagetable, va);
+    if ((*pte & PTE_V) == 0) {
+        failed("page_in()");
+        return;
+    }
+
+    pte_info(pte);
+
+    passed("page_out() and page_in()");
 }

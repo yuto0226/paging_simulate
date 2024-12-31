@@ -1,6 +1,7 @@
 #include "types.h"
 #include "riscv.h"
 #include "debug.h"
+#include "swap.h"
 
 /*
  * the kernel's page table.
@@ -183,4 +184,35 @@ uvmalloc(pagetable_t pagetable, uint64 oldsz, uint64 newsz, int xperm) {
     }
   }
   return newsz;
+}
+
+// 將 page 映射到交換區域
+void page_out(pagetable_t pagetable, uint64 va) {
+  info("page_out: va=0x%lx\n", va);
+  pte_t* pte = walk(pagetable, va, 0);
+  if (pte == 0 || (*pte & PTE_V) == 0) {
+    panic("page_out: page not present");
+  }
+
+  uint64 pa = PTE2PA(*pte);
+  uint16 flags = PTE_FLAGS(*pte);
+  int swap_index = swap_out((void*)pa);
+  *pte = PA2PTE(swap_index) | flags | PTE_S;  // 使用 PTE 的低位來存儲交換區域的索引
+  *pte &= ~PTE_V;
+  kfree((void*)pa);
+}
+
+// 將交換區域中的頁面映射到 page
+void page_in(pagetable_t pagetable, uint64 va) {
+  info("page_in: va = 0x%lx\n", va);
+  pte_t* pte = walk(pagetable, va, 0);
+  if (pte == 0 || (*pte & PTE_S) == 0) {
+    panic("page_in: page not present");
+  }
+
+  int swap_index = PTE2PA(*pte);  // 提取交換區域的索引
+  uint16 flag = PTE_FLAGS(*pte);
+  void* pa = kalloc();
+  swap_in(swap_index, pa);
+  *pte = PA2PTE(pa) | flag | PTE_V;
 }
