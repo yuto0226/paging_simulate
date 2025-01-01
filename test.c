@@ -66,7 +66,7 @@ void page_test() {
 
     uint64 va = 0x1000;
 
-    mappages(pagetable, va, PGSIZE, (uint64)data, PTE_U | PTE_R | PTE_W);
+    mappages(pagetable, va, PGSIZE, (uint64)data, PTE_U | PTE_R | PTE_W, 1);
     pte_t *pte = walk(pagetable, va, 0);
     pte_info(pte);
 

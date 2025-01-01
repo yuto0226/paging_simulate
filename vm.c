@@ -75,7 +75,7 @@ walkaddr(pagetable_t pagetable, uint64 va) {
 // Returns 0 on success, -1 if walk() couldn't
 // allocate a needed page-table page.
 int
-mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm) {
+mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm, int valid) {
   uint64 a, last;
   pte_t* pte;
 
@@ -95,7 +95,7 @@ mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm) {
       return -1;
     if(*pte & PTE_V)
       panic("mappages: remap");
-    *pte = PA2PTE(pa) | perm | PTE_V;
+    *pte = PA2PTE(pa) | perm | (valid ? PTE_V : 0);
     if(a == last)
       break;
     a += PGSIZE;
@@ -177,7 +177,7 @@ uvmalloc(pagetable_t pagetable, uint64 oldsz, uint64 newsz, int xperm) {
       return 0;
     }
     memset(mem, 0, PGSIZE);
-    if(mappages(pagetable, a, PGSIZE, (uint64) mem, PTE_R | PTE_U | xperm) != 0) {
+    if(mappages(pagetable, a, PGSIZE, (uint64) mem, PTE_R | PTE_U | xperm, 1) != 0) {
       kfree(mem);
       uvmdealloc(pagetable, a, oldsz);
       return 0;
