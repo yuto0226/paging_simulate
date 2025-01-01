@@ -65,13 +65,8 @@ void page_test() {
 
     uint64 va = 0x1000;
 
-    pte_t *pte = walk(pagetable, va, 1);
-    if (pte == 0) {
-        failed("walk()");
-        return;
-    }
-
-    *pte = PA2PTE((uint64)data) | PTE_V | PTE_U | PTE_R | PTE_W;
+    mappages(pagetable, va, PGSIZE, (uint64)data, PTE_U | PTE_R | PTE_W);
+    pte_t *pte = walk(pagetable, va, 0);
     pte_info(pte);
 
     uint64 addr = walkaddr(pagetable, va);
