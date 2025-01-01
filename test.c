@@ -7,6 +7,7 @@
 #include "memorylayout.h"
 #include "types.h"
 #include "swap.h"
+#include "vm.h"
 
 #define passed(fmt, ...) printf(\
     COLOR_GREEN "[+] " COLOR_RESET fmt COLOR_BOLD_GREEN " passed\n" COLOR_RESET,\
