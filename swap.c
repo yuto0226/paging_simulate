@@ -17,7 +17,6 @@ int swap_out(void *pa) {
     if (swap_map[i] == 0) {
       memcpy(&swap_space[i * PGSIZE], pa, PGSIZE);
       swap_map[i] = 1;
-      info("swap_out: swap index %d\n", i);
       return i;  // 返回交換區域的索引
     }
   }
@@ -27,7 +26,6 @@ int swap_out(void *pa) {
 
 // 將交換區域中的頁面交換到物理地址
 void swap_in(int index, void *pa) {
-  info("swap_in: swap index %d\n", index);
   if (index < 0 || index >= SWAP_SIZE || swap_map[index] == 0) {
     panic("swap_in: invalid swap index");
   }
