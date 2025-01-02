@@ -21,7 +21,7 @@ int main() {
   scanf("%d", &page_sz);
   info("輸入分欄數量(<128): ");
   scanf("%d", &frame_sz);
-  info("選擇替換演算法(1.fifo, 2.lru):");
+  info("選擇替換演算法(0.FIFO, 1.LRU):");
   scanf("%d", &algo);
 
   // 初始化物理和虛擬記憶體
@@ -47,7 +47,7 @@ int main() {
     info("輸入虛擬記憶體位址:\n");
     printf(COLOR_BOLD_RED"$ "COLOR_RESET);
     scanf("%lx", &va);
-    uint64 pa = mmu(&pcb, va); // 轉換虛擬地址到物理地址
+    uint64 pa = mmu(&pcb, va, algo); // 轉換虛擬地址到物理地址
     printf("virtual addr= 0x%08lx -> physical addr= 0x%016lx\n", va, pa);
   }
   

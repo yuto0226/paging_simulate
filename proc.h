@@ -26,5 +26,7 @@ void init_proc(struct proc* p, char* name, pagetable_t pgtbl, uint64 sz, uint64 
 struct page *init_page_node(uint64 va, struct page *next);
 void push_page(struct page** list, uint64 va);
 uint64 pop_page(struct page** list);
+struct page* find_page(struct page** list, uint64 va);
+uint64 pop_lru_page(struct page** list);
 
 #endif

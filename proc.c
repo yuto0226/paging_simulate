@@ -1,4 +1,5 @@
 #include "proc.h"
+#include "riscv.h"
 
 // 初始化進程的函式
 void init_proc(struct proc* p, char* name, pagetable_t pgtbl, uint64 sz, uint64 frame_sz) {
@@ -38,14 +39,42 @@ uint64 pop_page(struct page **list) {
     return va;
 }
 
+// find page in list with va
 struct page* find_page(struct page **list, uint64 va) {
     if(*list == NULL) {
         return NULL;
     }
     struct page* curr = *list;
     while(curr != NULL) {
-        if(curr->va == va) break;
+        if(curr->va == va) {
+            return curr;
+        }
         curr = curr->next;
     }
-    return curr;
+    return NULL;
+}
+
+// 在 list 中找到 count 最少的 page
+uint64 pop_lru_page(struct page **list) {
+    if(*list == NULL) {
+        return MAXVA + 1;
+    }
+    struct page* curr = *list, *target, *prev=NULL, *target_prev=NULL;
+    uint64 min_count = 0xffffffff;
+
+    while(curr != NULL) {
+        if(curr->count <= min_count) {
+            target = curr;
+            target_prev = prev;
+            min_count = curr->count;
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+    if(target_prev == NULL) *list = target->next;
+    else target_prev->next = target->next;
+    uint64 va =target->va;
+    free(target);
+
+    return va;
 }
