@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "proc.h"
 #include "riscv.h"
 
 void
@@ -34,5 +35,15 @@ void pte_info(pte_t *pte) {
   printf("Accessed        : %s\n", (*pte & PTE_A) ? COLOR_BOLD_GREEN"Yes"COLOR_RESET : "No");
   printf("Dirty           : %s\n", (*pte & PTE_D) ? COLOR_BOLD_GREEN"Yes"COLOR_RESET : "No");
   printf("Swapped         : %s\n", (*pte & PTE_S) ? COLOR_BOLD_GREEN"Yes"COLOR_RESET : "No");
-  printf("--------------------------------\n");
+  printf("--------------------------------\n\n");
+}
+
+void page_list_info(struct page** list) {
+  info("page list(0x%lx):\n", (uint64)*list);
+  struct page* curr = *list;
+  while(curr != NULL) {
+    printf("va=0x%04lx --> next=0x%lx\n", curr->va, (uint64) curr->next);
+    curr = curr->next;
+  }
+  printf("\n");
 }

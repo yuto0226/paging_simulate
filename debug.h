@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "types.h"
 #include "riscv.h"
+#include "proc.h"
 
 #define COLOR_RESET "\033[0m"
 #define COLOR_RED "\033[31m"
@@ -27,5 +28,6 @@
 
 void panic(char *s);
 void pte_info(pte_t *pte);
+void page_list_info(struct page** list);
 
 #endif
