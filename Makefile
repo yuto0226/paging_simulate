@@ -5,7 +5,7 @@ CFLAGS = -Wall -Wextra -g -I.
 TARGET = vm
 
 # 源碼檔案
-SRCS = main.c debug.c
+SRCS = main.c debug.c proc.c
 HEADERS = types.h riscv.h
 
 # kalloc.c 和 vm.c 已經在 main.c 中被引入，所以不需要列在 SRCS 中
