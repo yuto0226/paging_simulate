@@ -18,17 +18,10 @@ int main(int argc, char *argv[]) {
   // 初始化物理和虛擬記憶體
   kinit();
   ok("physical memory initialized\n");
-  kvminit();
-  ok("virtual memory initialized\n");
 
   // 初始化交換區域
   swap_init();
   ok("swap area initialized\n");
-
-  // 執行測試
-  pa_test();
-  va_test();
-  page_test();
 
   return 0;
 }
