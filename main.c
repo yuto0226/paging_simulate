@@ -15,8 +15,14 @@
 char end[PA_SIZE];
 void exec(struct proc *pcb);
 
-int main(int argc, char *argv[]) {
-  (void)argc; (void)argv;
+int main() {
+  int page_sz, frame_sz, algo;
+  info("輸入分頁數量: ");
+  scanf("%d", &page_sz);
+  info("輸入分欄數量(<128): ");
+  scanf("%d", &frame_sz);
+  info("選擇替換演算法(1.fifo, 2.lru):");
+  scanf("%d", &algo);
 
   // 初始化物理和虛擬記憶體
   kinit();
@@ -30,7 +36,7 @@ int main(int argc, char *argv[]) {
 
   // process 維護的資訊
   struct proc pcb;
-  init_proc(&pcb, "test", pgtbl, 7, 3);
+  init_proc(&pcb, "test", pgtbl, page_sz, frame_sz);
 
   exec(&pcb);
   page_list_info(&pcb.page_list);
@@ -67,8 +73,8 @@ void exec(struct proc *pcb) {
       info("swap: virtual addr= 0x%04lx --> swap index= 0x%lx\n", page_count * 0x1000, si);
       mappages(pcb->pgtbl, va, PGSIZE, si, PTE_U | PTE_S);
     }
-    pte_t *pte = walk(pcb->pgtbl, va, 0);
-    pte_info(pte);
+    // pte_t *pte = walk(pcb->pgtbl, va, 0);
+    // pte_info(pte);
   }
   ok("映射使用者記憶體空間完成\n");
 }

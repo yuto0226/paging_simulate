@@ -37,6 +37,7 @@ uint64 mmu(struct proc *p, uint64 va) {
     } else {
         pa = PTE2PA(*pte) | offset;
     }
+    pte_info(pte);
 
     return pa;
 }
