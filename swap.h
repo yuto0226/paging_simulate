@@ -4,7 +4,7 @@
 #define SWAP_SIZE 16  // 定義交換區域大小（頁數）
 
 void swap_init();
-int swap_out(void *pa);
+uint64 swap_out(void *pa);
 void swap_in(int index, void *pa);
 
 #endif  // SWAP_H

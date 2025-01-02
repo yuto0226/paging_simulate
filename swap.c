@@ -12,7 +12,7 @@ void swap_init() {
 }
 
 // 將 frame 交換到交換區域
-int swap_out(void *pa) {
+uint64 swap_out(void *pa) {
   for (int i = 0; i < SWAP_SIZE; i++) {
     if (swap_map[i] == 0) {
       memcpy(&swap_space[i * PGSIZE], pa, PGSIZE);
