@@ -10,6 +10,7 @@ void init_proc(struct proc* p, char* name, pagetable_t pgtbl, uint64 sz, uint64 
     strcpy(p->name, name);
 }
 
+// 初始化 page 紀錄
 struct page* init_page_node(uint64 va, struct page* next) {
     struct page* node = (struct page*) malloc(sizeof(struct page));
     node->va = va;
@@ -18,6 +19,7 @@ struct page* init_page_node(uint64 va, struct page* next) {
     return node;
 }
 
+// 把 page push 進 list 末端
 void push_page(struct page** list, uint64 va) {
     if(*list == NULL) {
         *list = init_page_node(va, NULL);
@@ -30,6 +32,7 @@ void push_page(struct page** list, uint64 va) {
     curr->next = init_page_node(va, NULL);
 }
 
+// pop 最先進來的 page
 uint64 pop_page(struct page **list) {
     if(*list == NULL) return -1;
     struct page* temp = *list;
@@ -54,7 +57,7 @@ struct page* find_page(struct page **list, uint64 va) {
     return NULL;
 }
 
-// 在 list 中找到 count 最少的 page
+// 在 list 中找到 count 最少的 page，然後 pop 出 page list
 uint64 pop_lru_page(struct page **list) {
     if(*list == NULL) {
         return MAXVA + 1;

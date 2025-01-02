@@ -21,7 +21,7 @@ int main() {
   scanf("%d", &page_sz);
   info("輸入分欄數量(<128): ");
   scanf("%d", &frame_sz);
-  info("選擇替換演算法(0.FIFO, 1.LRU):");
+  info("選擇替換演算法(0.FIFO, 1.LRU): ");
   scanf("%d", &algo);
 
   // 初始化物理和虛擬記憶體
@@ -54,6 +54,8 @@ int main() {
   return 0;
 }
 
+// 模擬程式被載入記憶體執行的過程
+// 簡略到只有分配分頁空間
 void exec(struct proc *pcb) {
   info("映射使用者記憶體空間...\n");
   for(uint64 page_count = 0; page_count < pcb->sz; page_count++) {

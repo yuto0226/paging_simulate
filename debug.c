@@ -53,7 +53,7 @@ void page_list_info(struct page** list) {
   info("page list(0x%lx):\n", (uint64)*list);
   struct page* curr = *list;
   while(curr != NULL) {
-    printf("\\___(0x%016lx)virtual addr= 0x%04lx, count= %ld --> next=0x%16lx\n", (uint64)curr, curr->va, curr->count, (uint64)curr->next);
+    printf("\\___(0x%016lx)virtual addr= 0x%04lx, count= %ld --> next=0x%016lx\n", (uint64)curr, curr->va, curr->count, (uint64)curr->next);
     curr = curr->next;
   }
   printf("\n");
