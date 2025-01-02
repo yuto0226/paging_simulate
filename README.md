@@ -25,3 +25,7 @@ make run
 - 維護一個 `swap_map` 紀錄交換區的使用狀況
 - 預設行程會維護一個 page table 和負責記錄可用分頁的 page list
 - 利用程式模擬 MMU 並實作 page fault 的分頁替換演算法
+
+![](img/flow_chart.png)
+
+
