@@ -19,18 +19,20 @@ uint64 mmu(struct proc *p, uint64 va) {
     // page fault
     if ((*pte & PTE_V) == 0 || (*pte & PTE_S) != 0) {
         printf("\n");
-        warn("PAGE FAULT\n\n");
+        warn(COLOR_BOLD_YELLOW"PAGE FAULT\n\n"COLOR_RESET);
         // 需要替換頁面
         uint64 victim_page = pop_page(&p->page_list); // 獲取 FIFO 隊列的第一個頁面
-        info("mmu: select victim 0x%lx\n", victim_page);
+        info("mmu: select victim page= 0x%08lx\n", victim_page);
 
         // 使用 page_out 將舊頁面移出
+        info("page_out: va=0x%08lx\n", victim_page);
         page_out(p->pgtbl, victim_page);
         ok("page out successful.\n");
 
+        info("page in: page virtual addr= 0x%08lx\n", PGROUNDDOWN(va));
         page_in(p->pgtbl, PGROUNDDOWN(va));
         push_page(&p->page_list, PGROUNDDOWN(va));
-        ok("page in successful.\n");
+        ok("page in: successful.\n");
         page_list_info(&p->page_list);
     } else {
         pa = PTE2PA(*pte) | offset;

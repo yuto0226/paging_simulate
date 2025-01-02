@@ -10,7 +10,7 @@ panic(char* s) {
 }
 
 void pte_info(pte_t *pte) {
-  info("pte info: 0x%lx\n", *pte);
+  info("pte(0x%016lx) info: 0x%010lx\n", (uint64)pte, *pte);
   if(PTE_FLAGS(*pte) & PTE_S) {
     info("this page is swapped\n");
   }
@@ -21,7 +21,7 @@ void pte_info(pte_t *pte) {
     printf("| 0x%012lx | 0x%03lx |\n", *pte >> 10,  PTE_FLAGS(*pte));
   else
     printf("| 0x%012lx | 0x%03lx |\n", PTE2PA(*pte), PTE_FLAGS(*pte));
-  printf("+----------------+-------+\n");
+  printf("+----------------+-------+\n\n");
   if(PTE_FLAGS(*pte) & PTE_S)
     printf("swap index      : 0x%lx\n", *pte >> 10);
   else
@@ -38,11 +38,22 @@ void pte_info(pte_t *pte) {
   printf("--------------------------------\n\n");
 }
 
+void pgtbl_info(pagetable_t pgtbl, uint64 sz) {
+  info("page table(size=%ld):\n", sz);
+  for(uint64 i = 0; i < 256; i++) {  // 從level 2開始，level 0結束
+    pte_t *pte = &pgtbl[i];
+    if((*pte & PTE_V) != 0) {  // 檢查頁表條目是否有效
+      printf("pgtbl[%ld]:\n", i);
+      pte_info(pte);  // 顯示該頁表條目的詳細資訊
+    }
+  }
+}
+
 void page_list_info(struct page** list) {
   info("page list(0x%lx):\n", (uint64)*list);
   struct page* curr = *list;
   while(curr != NULL) {
-    printf("va=0x%04lx --> next=0x%lx\n", curr->va, (uint64) curr->next);
+    printf("\\___virtual addr= 0x%04lx\n", curr->va);
     curr = curr->next;
   }
   printf("\n");

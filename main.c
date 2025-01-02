@@ -20,11 +20,11 @@ int main(int argc, char *argv[]) {
 
   // 初始化物理和虛擬記憶體
   kinit();
-  ok("physical memory initialized\n");
+  ok("物理記憶體模擬初始化完成\n");
 
   // 初始化交換區域
   swap_init();
-  ok("swap area initialized\n");
+  ok("交換區域模擬初始化完成\n");
 
   pagetable_t pgtbl = uvmcreate();
 
@@ -38,17 +38,18 @@ int main(int argc, char *argv[]) {
   // 使用 mmu 轉換虛擬地址
   uint64 va = 0x1000;
   for(;;) {
+    info("輸入虛擬記憶體位址:\n");
     printf(COLOR_BOLD_RED"$ "COLOR_RESET);
     scanf("%lx", &va);
     uint64 pa = mmu(&pcb, va); // 轉換虛擬地址到物理地址
-    printf("va: 0x%016lx -> pa: 0x%016lx\n", va, pa);
+    printf("virtual addr= 0x%08lx -> physical addr= 0x%016lx\n", va, pa);
   }
   
   return 0;
 }
 
 void exec(struct proc *pcb) {
-  info("map user memory space\n");
+  info("映射使用者記憶體空間...\n");
   for(uint64 page_count = 0; page_count < pcb->sz; page_count++) {
     uint64 va = page_count * 0x1000;
     uint64* data = kalloc();
@@ -58,14 +59,16 @@ void exec(struct proc *pcb) {
     }
 
     if(page_count < pcb->frame_sz) {
-      info("map: va=0x%04lx --> pa=0x%lx\n", va, (uint64) data);
+      info("map : virtual addr= 0x%04lx --> physical addr= 0x%lx\n", va, (uint64) data);
       mappages(pcb->pgtbl, va, PGSIZE, (uint64) data, PTE_U);
       push_page(&pcb->page_list, va);
     } else {
       uint64 si = swap_out(data);
-      info("va=0x%04lx swapped into index=0x%lx\n", page_count * 0x1000, si);
+      info("swap: virtual addr= 0x%04lx --> swap index= 0x%lx\n", page_count * 0x1000, si);
       mappages(pcb->pgtbl, va, PGSIZE, si, PTE_U | PTE_S);
     }
+    pte_t *pte = walk(pcb->pgtbl, va, 0);
+    pte_info(pte);
   }
-  ok("map user memory space complete\n");
+  ok("映射使用者記憶體空間完成\n");
 }

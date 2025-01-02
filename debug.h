@@ -28,6 +28,7 @@
 
 void panic(char *s);
 void pte_info(pte_t *pte);
+void pgtbl_info(pagetable_t pgtbl, uint64 sz);
 void page_list_info(struct page** list);
 
 #endif

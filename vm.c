@@ -188,7 +188,6 @@ uvmalloc(pagetable_t pagetable, uint64 oldsz, uint64 newsz, int xperm) {
 
 // 將 page 映射到交換區域
 void page_out(pagetable_t pagetable, uint64 va) {
-  info("page_out: va=0x%lx\n", va);
   pte_t* pte = walk(pagetable, va, 0);
   if (pte == 0 || (*pte & PTE_V) == 0) {
     panic("page_out: page not present");
@@ -198,13 +197,11 @@ void page_out(pagetable_t pagetable, uint64 va) {
   uint16 flags = PTE_FLAGS(*pte);
   int swap_index = swap_out((void*)pa);
   *pte = swap_index << 10 | flags | PTE_S;  // 使用 PTE 的 pa 來存儲交換區域的索引
-  info("swapped pte: 0x%lx\n", *pte);
   kfree((void*)pa);
 }
 
 // 將交換區域中的頁面映射到 page
 void page_in(pagetable_t pagetable, uint64 va) {
-  info("page_in: va = 0x%lx\n", va);
   pte_t* pte = walk(pagetable, va, 0);
   if (pte == 0 || (*pte & PTE_S) == 0) {
     panic("page_in: page not present");
