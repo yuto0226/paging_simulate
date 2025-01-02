@@ -8,7 +8,7 @@
 void kvminit();
 pte_t* walk(pagetable_t pagetable, uint64 va, int alloc);
 uint64 walkaddr(pagetable_t pagetable, uint64 va);
-int mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm, int valid);
+int mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm);
 void uvmunmap(pagetable_t pagetable, uint64 va, uint64 npages, int do_free);
 pagetable_t uvmcreate();
 uint64 uvmdealloc(pagetable_t pagetable, uint64 oldsz, uint64 newsz);

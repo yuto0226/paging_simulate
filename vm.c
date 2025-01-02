@@ -75,7 +75,7 @@ walkaddr(pagetable_t pagetable, uint64 va) {
 // Returns 0 on success, -1 if walk() couldn't
 // allocate a needed page-table page.
 int
-mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm, int valid) {
+mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm) {
   uint64 a, last;
   pte_t* pte;
 
@@ -95,7 +95,7 @@ mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm, int
       return -1;
     if(*pte & PTE_V)
       panic("mappages: remap");
-    *pte = PA2PTE(pa) | perm | (valid ? PTE_V : 0);
+    *pte = PA2PTE(pa) | perm | PTE_V;
     if(a == last)
       break;
     a += PGSIZE;
@@ -177,7 +177,7 @@ uvmalloc(pagetable_t pagetable, uint64 oldsz, uint64 newsz, int xperm) {
       return 0;
     }
     memset(mem, 0, PGSIZE);
-    if(mappages(pagetable, a, PGSIZE, (uint64) mem, PTE_R | PTE_U | xperm, 1) != 0) {
+    if(mappages(pagetable, a, PGSIZE, (uint64) mem, PTE_R | PTE_U | xperm) != 0) {
       kfree(mem);
       uvmdealloc(pagetable, a, oldsz);
       return 0;
@@ -197,8 +197,8 @@ void page_out(pagetable_t pagetable, uint64 va) {
   uint64 pa = PTE2PA(*pte);
   uint16 flags = PTE_FLAGS(*pte);
   int swap_index = swap_out((void*)pa);
-  *pte = PA2PTE(swap_index) | flags | PTE_S;  // 使用 PTE 的低位來存儲交換區域的索引
-  *pte &= ~PTE_V;
+  *pte = swap_index << 10 | flags | PTE_S;  // 使用 PTE 的 pa 來存儲交換區域的索引
+  info("swapped pte: 0x%lx\n", *pte);
   kfree((void*)pa);
 }
 
@@ -210,9 +210,9 @@ void page_in(pagetable_t pagetable, uint64 va) {
     panic("page_in: page not present");
   }
 
-  int swap_index = PTE2PA(*pte);  // 提取交換區域的索引
+  int swap_index = *pte >> 10;  // 提取交換區域的索引
   uint16 flag = PTE_FLAGS(*pte);
   void* pa = kalloc();
   swap_in(swap_index, pa);
-  *pte = PA2PTE(pa) | flag | PTE_V;
+  *pte = PA2PTE(pa) | (flag & ~PTE_S) | PTE_V;
 }
